@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tunisia Car AI &mdash; Find Your Perfect Car Rental</title>
+<meta name="description" content="AI-powered car rental finder for Tunisia. Tell us your destination, duration and budget — we match you to the best car rental site instantly.">
+<meta name="keywords" content="car rental tunisia AI, best car hire tunisia, location voiture tunisie, find car rental tunisia, car finder tunisia, rent car tunisia">
+<meta property="og:title" content="Tunisia Car AI — Find Your Perfect Car Rental">
+<meta property="og:description" content="Answer 3 quick questions and our AI matches you to the best car rental in Tunisia.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#eef2f7;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);color:white;padding:1.5rem 1rem;text-align:center;flex-shrink:0}
+.hdr-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.4rem}
+.hdr-icon{width:40px;height:40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);border-radius:12px;display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.hdr h1{font-size:1.45rem;font-weight:800;letter-spacing:-.5px}
+.hdr-sub{font-size:.88rem;opacity:.65;margin-bottom:.9rem}
+.hdr-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:.32rem .85rem;border-radius:50px;font-size:11.5px;font-weight:500}
+.dot{width:7px;height:7px;background:#22c55e;border-radius:50%;flex-shrink:0;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CHAT CONTAINER */
+.main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:1.2rem 1rem 2rem}
+.chat-box{background:white;border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,.1);width:100%;max-width:640px;display:flex;flex-direction:column;overflow:hidden}
+
+/* MESSAGES */
+.msgs{padding:1.4rem 1.4rem .5rem;display:flex;flex-direction:column;gap:.9rem;min-height:260px;overflow-y:auto;scroll-behavior:smooth}
+.msg{display:flex;gap:9px;align-items:flex-end}
+.msg.bot{justify-content:flex-start}
+.msg.user{justify-content:flex-end}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#6366f1);display:grid;place-items:center;font-size:15px;flex-shrink:0;user-select:none}
+.bbl{max-width:78%;padding:.75rem 1rem;border-radius:18px;font-size:.92rem;line-height:1.58}
+.msg.bot .bbl{background:#f3f4f6;color:#111;border-bottom-left-radius:4px}
+.msg.user .bbl{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:white;border-bottom-right-radius:4px}
+
+/* TYPING */
+.typing-row{display:flex;gap:9px;align-items:center;padding:0 1.4rem .3rem}
+.typing-row.hidden{display:none}
+.dots{display:flex;gap:4px;padding:.7rem .9rem;background:#f3f4f6;border-radius:18px;border-bottom-left-radius:4px}
+.dots span{width:7px;height:7px;background:#b0b7c3;border-radius:50%;animation:bounce .9s infinite ease-in-out}
+.dots span:nth-child(2){animation-delay:.18s}
+.dots span:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+
+/* QUICK REPLIES */
+.qr{padding:.6rem 1.4rem 1rem;display:flex;flex-wrap:wrap;gap:.45rem;min-height:0}
+.qr-btn{background:white;border:1.5px solid #e2e8f0;color:#374151;padding:.42rem .95rem;border-radius:50px;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1.3}
+.qr-btn:hover{border-color:#0ea5e9;color:#0284c7;background:#f0f9ff;transform:translateY(-1px)}
+
+/* INPUT ROW */
+.inp-row{display:flex;gap:.5rem;padding:.9rem 1.4rem;border-top:1px solid #f1f5f9}
+.inp-row.hidden{display:none}
+.txt-in{flex:1;border:1.5px solid #e2e8f0;border-radius:50px;padding:.58rem 1.1rem;font-size:.9rem;outline:none;font-family:inherit;transition:border-color .15s;color:#1a1a1a}
+.txt-in:focus{border-color:#0ea5e9}
+.snd{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:opacity .15s}
+.snd:hover{opacity:.85}
+.snd svg{width:15px;height:15px}
+
+/* RECOMMENDATION CARD */
+.rec{margin:0 1.4rem 1.4rem;border-radius:16px;border:1.5px solid #e2e8f0;overflow:hidden}
+.rec.hidden{display:none}
+.rec-hdr{padding:1.1rem 1.4rem;color:white;display:flex;align-items:center;gap:12px}
+.rec-hdr-ico{width:38px;height:38px;background:rgba(255,255,255,.18);border-radius:50%;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.rec-hdr h3{font-size:1rem;font-weight:700;line-height:1.2}
+.rec-hdr p{font-size:.78rem;opacity:.85;margin-top:.1rem}
+.rec-body{padding:1.2rem 1.4rem 1.4rem;background:white}
+.rec-name{font-size:1.05rem;font-weight:700;color:#111;margin-bottom:.3rem}
+.rec-desc{font-size:.87rem;color:#64748b;line-height:1.55;margin-bottom:1rem}
+.rec-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.1rem}
+.rec-pill{display:inline-flex;align-items:center;gap:5px;background:#f8fafc;border:1px solid #e2e8f0;padding:.3rem .75rem;border-radius:50px;font-size:.8rem;font-weight:500;color:#374151}
+.rec-cta{display:block;text-align:center;color:white;padding:.85rem;border-radius:10px;font-weight:700;font-size:.95rem;transition:opacity .15s,transform .15s;cursor:pointer}
+.rec-cta:hover{opacity:.88;transform:translateY(-1px)}
+
+/* RESTART */
+.restart-row{padding:.6rem 1.4rem 1.2rem;text-align:center}
+.restart-row.hidden{display:none}
+.restart-btn{background:none;border:1.5px solid #e2e8f0;color:#64748b;padding:.4rem 1.1rem;border-radius:50px;font-size:.82rem;cursor:pointer;font-family:inherit;transition:all .15s}
+.restart-btn:hover{border-color:#94a3b8;color:#374151}
+
+/* FOOTER */
+footer{text-align:center;padding:1rem;font-size:11px;color:#94a3b8;flex-shrink:0}
+footer a{color:#94a3b8;border-bottom:1px solid #cbd5e1}
+
+/* MOBILE */
+@media(max-width:480px){
+  .msgs{min-height:220px}
+  .bbl{max-width:86%}
+  .hdr h1{font-size:1.25rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-icon">&#x1F697;</div>
+    <h1>Tunisia Car AI</h1>
+  </div>
+  <p class="hdr-sub">Find your perfect car rental &mdash; 6 sites compared instantly</p>
+  <div class="hdr-badge">
+    <span class="dot"></span>
+    AI Online &middot; 100% free &middot; No commission
+  </div>
+</header>
+
+<div class="main">
+  <div class="chat-box">
+    <div class="msgs" id="msgs"></div>
+
+    <div class="typing-row hidden" id="typing">
+      <div class="av">&#x1F916;</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="qr" id="qr"></div>
+
+    <div class="inp-row hidden" id="inp-row">
+      <input class="txt-in" id="txt-in" type="text" placeholder="Type here or pick above&hellip;" autocomplete="off" maxlength="80">
+      <button class="snd" id="snd" aria-label="Send">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="rec hidden" id="rec"></div>
+
+    <div class="restart-row hidden" id="restart-row">
+      <button class="restart-btn" id="restart-btn">&#x21BA; Start over</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Tunisia Car AI &middot; Comparing <a href="https://rent-car-tunisia.github.io" target="_blank">the best car rental sites</a> in Tunisia</p>
+</footer>
+
+<script>
+/* ── DATA ── */
+var SITES = {
+  tunis: {
+    name: 'LocationVoitureTunis.com',
+    url: 'https://locationvoituretunis.com',
+    color: '#047857',
+    match: 'Best match &mdash; Tunis &amp; North Tunisia',
+    desc: 'Top-rated specialists for Tunis city center and Tunis-Carthage airport (TUN). Direct pickup on arrival, unlimited mileage, modern AC fleet.',
+    price: 'From 25 DT/day',
+    rating: '4.9&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  },
+  djerba: {
+    name: 'LocationVoitureDjerba.com',
+    url: 'https://locationvoituredjerba.com',
+    color: '#c2410c',
+    match: 'Best match &mdash; Djerba Island',
+    desc: 'Island specialists with direct DJE airport pickup. Convertibles available. Drive off-island to Zarzis, Gabes or the Sahara anytime.',
+    price: 'From 30 DT/day',
+    rating: '4.8&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  },
+  hammamet: {
+    name: 'LocationVoiture-Hammamet.com',
+    url: 'https://locationvoiture-hammamet.com',
+    color: '#6d28d9',
+    match: 'Best match &mdash; Hammamet &amp; Cap Bon',
+    desc: 'Direct pickup at Enfidha-Hammamet airport (NBE), only 40 km from Yasmine Hammamet. Convertibles for the Cap Bon sunshine.',
+    price: 'From 28 DT/day',
+    rating: '4.9&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  },
+  sousse: {
+    name: 'TunisiaRentCar.net',
+    url: 'https://tunisiarentcar.net',
+    color: '#0f766e',
+    match: 'Best match &mdash; Sousse &amp; Monastir',
+    desc: 'Sahel coast specialists covering Sousse, Monastir and Mahdia. All 4 airports covered. Free cancellation policy.',
+    price: 'From 25 DT/day',
+    rating: '4.8&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  },
+  national: {
+    name: 'LocationVoitures-Tunisie.com',
+    url: 'https://locationvoitures-tunisie.com',
+    color: '#00256f',
+    match: 'Best match &mdash; Nationwide Tunisia',
+    desc: 'Full national coverage with all 4 airports (TUN, DJE, NBE, MIR). Perfect for a road trip across all of Tunisia. City-to-city available.',
+    price: 'From 25 DT/day',
+    rating: '4.9&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  },
+  premium: {
+    name: 'CarHireTunisia.com',
+    url: 'https://carhiretunisia.com',
+    color: '#0f172a',
+    match: 'Best match &mdash; Premium &amp; Long Stays',
+    desc: 'Premium fleet including SUVs and Sahara 4x4. Best price guarantee across all of Tunisia. All airports, city-to-city, instant booking.',
+    price: 'From 25 DT/day',
+    rating: '5.0&thinsp;/&thinsp;5',
+    km: 'Unlimited km'
+  }
+};
+
+var FLOW = [
+  {
+    ask: 'Hey! &#x1F44B; I&rsquo;m <b>TunisiaCarAI</b>, your personal car rental advisor.<br><br>First — <b>where in Tunisia</b> are you heading?',
+    qr: ['Tunis &amp; North', 'Djerba Island', 'Hammamet / Cap Bon', 'Sousse / Monastir', 'All of Tunisia'],
+    key: 'dest',
+    ack: function(v){ return v + ' &#x2014; great choice! &#x1F31F;' }
+  },
+  {
+    ask: 'Got it! <b>How many days</b> do you need the car?',
+    qr: ['1&ndash;3 days', '4&ndash;7 days', '1&ndash;2 weeks', '2+ weeks'],
+    key: 'days',
+    ack: function(v){ return v + ' &#x2014; noted &#x1F4C5;' }
+  },
+  {
+    ask: 'Last question &mdash; what&rsquo;s your <b>daily budget</b>? (Tunisian Dinars)',
+    qr: ['Under 30 DT', '30&ndash;50 DT', '50&ndash;80 DT', '80+ DT'],
+    key: 'budget',
+    ack: function(v){ return v + ' budget &#x2014; perfect! &#x1F4B0;' }
+  }
+];
+
+/* ── STATE ── */
+var step = 0;
+var answers = {};
+
+/* ── ELEMENTS ── */
+var elMsgs    = document.getElementById('msgs');
+var elTyping  = document.getElementById('typing');
+var elQr      = document.getElementById('qr');
+var elInpRow  = document.getElementById('inp-row');
+var elTxtIn   = document.getElementById('txt-in');
+var elSnd     = document.getElementById('snd');
+var elRec     = document.getElementById('rec');
+var elRestart = document.getElementById('restart-row');
+
+/* ── HELPERS ── */
+function scrollDown(){ elMsgs.scrollTop = elMsgs.scrollHeight; }
+
+function botMsg(html){
+  var d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = '<div class="av">&#x1F916;</div><div class="bbl">' + html + '</div>';
+  elMsgs.appendChild(d);
+  scrollDown();
+}
+
+function userMsg(txt){
+  var d = document.createElement('div');
+  d.className = 'msg user';
+  d.innerHTML = '<div class="bbl">' + txt + '</div>';
+  elMsgs.appendChild(d);
+  scrollDown();
+}
+
+function showTyping(){ elTyping.classList.remove('hidden'); scrollDown(); }
+function hideTyping(){ elTyping.classList.add('hidden'); }
+
+function setQR(opts){
+  elQr.innerHTML = '';
+  opts.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'qr-btn';
+    b.innerHTML = o;
+    b.onclick = function(){ handleAnswer(b.textContent.trim()); };
+    elQr.appendChild(b);
+  });
+}
+function clearQR(){ elQr.innerHTML = ''; }
+function showInp(){ elInpRow.classList.remove('hidden'); setTimeout(function(){ elTxtIn.focus(); }, 60); }
+function hideInp(){ elInpRow.classList.add('hidden'); elTxtIn.value = ''; }
+
+/* ── ROUTING ── */
+function recommend(){
+  var d = (answers.dest || '').toLowerCase();
+  var b = (answers.budget || '').toLowerCase();
+  if(d.indexOf('djerba') >= 0) return SITES.djerba;
+  if(d.indexOf('hammamet') >= 0 || d.indexOf('cap bon') >= 0) return SITES.hammamet;
+  if(d.indexOf('sousse') >= 0 || d.indexOf('monastir') >= 0) return SITES.sousse;
+  if(d.indexOf('tunis') >= 0 || d.indexOf('north') >= 0) return SITES.tunis;
+  if(b.indexOf('80') >= 0 || b.indexOf('50') >= 0) return SITES.premium;
+  return SITES.national;
+}
+
+/* ── SHOW RESULT ── */
+function showResult(){
+  var s = recommend();
+  elRec.innerHTML =
+    '<div class="rec-hdr" style="background:' + s.color + '">' +
+      '<div class="rec-hdr-ico">&#x2705;</div>' +
+      '<div><h3>Perfect match found!</h3><p>' + s.match + '</p></div>' +
+    '</div>' +
+    '<div class="rec-body">' +
+      '<div class="rec-name">' + s.name + '</div>' +
+      '<div class="rec-desc">' + s.desc + '</div>' +
+      '<div class="rec-pills">' +
+        '<span class="rec-pill">&#x1F4B0;&ensp;' + s.price + '</span>' +
+        '<span class="rec-pill">&#x2B50;&ensp;' + s.rating + '</span>' +
+        '<span class="rec-pill">&#x221E;&ensp;' + s.km + '</span>' +
+        '<span class="rec-pill">&#x2708;&ensp;Airport pickup</span>' +
+      '</div>' +
+      '<a href="' + s.url + '" class="rec-cta" style="background:' + s.color + '" target="_blank" rel="noopener">Book Now &rarr;</a>' +
+    '</div>';
+  elRec.classList.remove('hidden');
+  elRestart.classList.remove('hidden');
+  setTimeout(function(){ elRec.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 150);
+}
+
+/* ── HANDLE ANSWER ── */
+function handleAnswer(val){
+  if(!val) return;
+  clearQR();
+  hideInp();
+
+  var cur = FLOW[step];
+  answers[cur.key] = val;
+  userMsg(val);
+  step++;
+
+  if(step < FLOW.length){
+    /* next question */
+    showTyping();
+    setTimeout(function(){
+      hideTyping();
+      botMsg(cur.ack(val));
+      setTimeout(function(){
+        showTyping();
+        setTimeout(function(){
+          hideTyping();
+          botMsg(FLOW[step].ask);
+          setQR(FLOW[step].qr);
+          showInp();
+        }, 850);
+      }, 400);
+    }, 750);
+  } else {
+    /* final — show result */
+    showTyping();
+    setTimeout(function(){
+      hideTyping();
+      botMsg(cur.ack(val));
+      setTimeout(function(){
+        showTyping();
+        setTimeout(function(){
+          hideTyping();
+          botMsg('Scanning 6 rental sites across Tunisia&hellip; &#x1F50D;');
+          setTimeout(function(){
+            showTyping();
+            setTimeout(function(){
+              hideTyping();
+              botMsg('Done! Here&rsquo;s my recommendation for your trip &#x1F447;');
+              setTimeout(showResult, 300);
+            }, 1400);
+          }, 600);
+        }, 850);
+      }, 400);
+    }, 750);
+  }
+}
+
+/* ── SEND BUTTON / ENTER ── */
+elSnd.onclick = function(){
+  var v = elTxtIn.value.trim();
+  if(v) handleAnswer(v);
+};
+elTxtIn.addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ var v = elTxtIn.value.trim(); if(v) handleAnswer(v); }
+});
+
+/* ── RESTART ── */
+document.getElementById('restart-btn').onclick = function(){
+  step = 0;
+  answers = {};
+  elMsgs.innerHTML = '';
+  clearQR();
+  hideInp();
+  elRec.classList.add('hidden');
+  elRestart.classList.add('hidden');
+  hideTyping();
+  init();
+};
+
+/* ── INIT ── */
+function init(){
+  showTyping();
+  setTimeout(function(){
+    hideTyping();
+    botMsg(FLOW[0].ask);
+    setQR(FLOW[0].qr);
+    showInp();
+  }, 1100);
+}
+
+init();
+</script>
+</body>
+</html>
